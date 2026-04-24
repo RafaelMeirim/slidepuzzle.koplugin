@@ -16,10 +16,11 @@ local RenderText = require("ui/rendertext")
 local UIManager = require("ui/uimanager")
 
 local BoardWidget = InputContainer:extend{
-    game = nil,      -- slidepuzzle_game.Game instance
-    max_size = nil,  -- maximum board side length in pixels
-    onTileTap = nil, -- function(row, col)
-    onSwipeDir = nil,-- function(direction) where direction is left/right/up/down
+    game       = nil,   -- slidepuzzle_game.Game instance
+    max_size   = nil,   -- maximum board side length in pixels
+    font_offset = 0,    -- manual font size adjustment
+    onTileTap  = nil,   -- function(row, col)
+    onSwipeDir = nil,   -- function(direction) where direction is left/right/up/down
 }
 
 local MIN_CELL = 32
@@ -56,7 +57,8 @@ function BoardWidget:_computeMetrics()
     self.dimen = Geom:new{ w = self.board_size, h = self.board_size }
     -- Font face for numbers. Sizes scale down for larger grids so the
     -- three-digit tiles on 7x7 still fit comfortably inside the cell.
-    local font_px = math.max(18, math.floor(cell * 0.45))
+    -- large_font bumps the size by ~30 % for better legibility on small screens.
+    local font_px = math.max(10, math.floor(cell * 0.45) + (self.font_offset or 0))
     self.number_face = Font:getFace("cfont", font_px)
 end
 
@@ -67,6 +69,11 @@ end
 
 function BoardWidget:setMaxSize(px)
     self.max_size = px
+    self:_computeMetrics()
+end
+
+function BoardWidget:setFontOffset(offset)
+    self.font_offset = offset or 0
     self:_computeMetrics()
 end
 
